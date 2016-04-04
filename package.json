@@ -1,0 +1,19 @@
+{
+  "name": "ohio.js",
+  "version": "1.0.0",
+  "description": "A tool for asserting functional purity in javascript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mbilokonsky/ohio.js.git"
+  },
+  "author": "@mykola",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mbilokonsky/ohio.js/issues"
+  },
+  "homepage": "https://github.com/mbilokonsky/ohio.js#readme"
+}
