@@ -32,6 +32,14 @@ describe("confirmIsolation", function() {
       var result = confirmIsolation(input);
       chai.expect(result);
     });
+
+    it("allows variables to be declared within the function body", function() {
+      var function_string = require("./test_data/isolated_function_with_vars");
+      var input = esprima.parse(function_string).body[1];
+
+      var result = confirmIsolation(input);
+      chai.expect(result);
+    });
   });
 
   describe("recognizes isolation violations", function() {

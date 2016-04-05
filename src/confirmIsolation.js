@@ -1,4 +1,5 @@
 var estraverse = require('estraverse');
+var references = require("episcope/references");
 
 var alwaysAcceptable = {
   Array: true,
@@ -35,19 +36,9 @@ module.exports = function(node) {
     return acc;
   }, {}));
 
-  var retVal = true;
+  var refs = references(node);
 
-  estraverse.traverse(node, {
-    enter: function(n) {
-      if (n.type === "Identifier" && !acceptable_identifiers[n.name]) {
-        retVal = false;
-        this.break;
-      }
-    },
-    leave: function(n) {
-
-    }
+  return refs.some(function(ref) {
+    return acceptable_identifiers[ref];
   });
-
-  return retVal;
 }
