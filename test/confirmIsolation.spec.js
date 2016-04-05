@@ -30,7 +30,7 @@ describe("confirmIsolation", function() {
       var input = esprima.parse(function_string).body[1];
 
       var result = confirmIsolation(input);
-      chai.expect(result);
+      chai.expect(result).to.be.true;
     });
 
     it("allows variables to be declared within the function body", function() {
@@ -38,7 +38,22 @@ describe("confirmIsolation", function() {
       var input = esprima.parse(function_string).body[1];
 
       var result = confirmIsolation(input);
-      chai.expect(result);
+      chai.expect(result).to.be.true;
+    });
+
+    it("allows internal closures with their own bindings", function() {
+      var function_string = require("./test_data/isolated_function_with_internal_closures");
+      var input = esprima.parse(function_string).body[1];
+
+      var result = confirmIsolation(input);
+      chai.expect(result).to.be.true;
+    });
+
+    it("recognizes native javascript reference names", function() {
+      var function_string = require("./test_data/isolated_function_with_native_language_tokens");
+      var input = esprima.parse(function_string).body[1];
+      var result = confirmIsolation(input);
+      chai.expect(result).to.be.true;
     });
   });
 

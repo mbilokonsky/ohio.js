@@ -1,17 +1,23 @@
 var estraverse = require('estraverse');
 var references = require("episcope/references");
+var bindings = require("episcope/bindings");
 
-var alwaysAcceptable = {
-  Array: true,
-  String: true,
-  Object: true,
-  console: true
-}
+// grabbed these from here:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects
+var alwaysAcceptable = require("./alwaysAvailableReferences");
 
 function createsNewScope(node){
   return node.type === 'FunctionDeclaration' ||
     node.type === 'FunctionExpression' ||
     node.type === 'Program';
+}
+
+function scopeFlattener(acc, val) {
+  for (var key in val) {
+    acc[key] = val[key];
+  }
+
+  return acc;
 }
 
 module.exports = function(node) {
@@ -31,14 +37,36 @@ module.exports = function(node) {
     4. return true;
   */
 
-  var acceptable_identifiers = Object.assign({}, alwaysAcceptable, node.params.reduce(function(acc, value) {
-    acc[value.name] = true
-    return acc;
-  }, {}));
+  var retVal = true;
+  var scopes = [];
+  estraverse.traverse(node, {
+    enter: function(n) {
+      if (createsNewScope(n)) {
+        scopes.push(bindings(n).reduce(function(acc, val) {
+          acc[val.name] = true;
+          return acc;
+        }, {}));
 
-  var refs = references(node);
+        var valid_refs = Object.assign({}, alwaysAcceptable, scopes.reduce(scopeFlattener, {}));
 
-  return refs.some(function(ref) {
-    return acceptable_identifiers[ref];
-  });
+        var found_refs = references(n);
+
+        var invalid_refs = found_refs.filter(function(ref) {
+          return !valid_refs[ref.name];
+        });
+
+        if (invalid_refs.length > 0) {
+          retVal = false;
+          this.break;
+        }
+      }
+    },
+    leave: function(node) {
+      if (createsNewScope(node)) {
+        scopes.pop();
+      }
+    }
+  })
+
+  return retVal;
 }
